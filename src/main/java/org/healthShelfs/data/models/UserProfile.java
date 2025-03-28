@@ -10,7 +10,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class DoctorProfile {
+public class UserProfile {
 
     @Id
     private String id;
@@ -19,5 +19,5 @@ public class DoctorProfile {
     private Gender gender;
     private String address;
     private String phone;
-    private MedicalField medicalField;
+    private JobField jobField;
 }

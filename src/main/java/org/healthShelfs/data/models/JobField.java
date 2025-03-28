@@ -10,8 +10,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class MedicalField {
+public class JobField {
     @Id
     private String id;
-    private String medicalField;
+    private String jobField;
 }
