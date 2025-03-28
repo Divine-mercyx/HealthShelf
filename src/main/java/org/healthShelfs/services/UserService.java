@@ -2,6 +2,7 @@ package org.healthShelfs.services;
 
 import org.healthShelfs.data.models.User;
 import org.healthShelfs.data.models.UserProfile;
+import org.healthShelfs.data.repositories.ProfileRepository;
 import org.healthShelfs.data.repositories.UserRepository;
 import org.healthShelfs.definedExceptions.DuplicateEmailException;
 import org.healthShelfs.definedExceptions.InvalidPasswordException;
@@ -18,6 +19,9 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private ProfileRepository profileRepository;
+
 
     public void deleteAll() {
         userRepository.deleteAll();
@@ -25,7 +29,8 @@ public class UserService {
 
     public User registerUser(User user, UserProfile profile) {
         throwsDuplicateEmailException(user);
-        user.setProfileId(profile.getId());
+        UserProfile savedProfile = profileRepository.save(profile);
+        user.setProfileId(savedProfile.getId());
         return userRepository.save(user);
     }
 
