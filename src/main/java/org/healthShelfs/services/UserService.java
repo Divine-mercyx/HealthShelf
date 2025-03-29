@@ -1,7 +1,11 @@
 package org.healthShelfs.services;
 
-import org.healthShelfs.data.models.User;
-import org.healthShelfs.data.models.UserProfile;
+import org.healthShelfs.data.models.appointment.Appointment;
+import org.healthShelfs.data.models.doctors.Doctor;
+import org.healthShelfs.data.models.users.User;
+import org.healthShelfs.data.models.users.UserProfile;
+import org.healthShelfs.data.repositories.AppointmentRepository;
+import org.healthShelfs.data.repositories.DoctorRepository;
 import org.healthShelfs.data.repositories.ProfileRepository;
 import org.healthShelfs.data.repositories.UserRepository;
 import org.healthShelfs.definedExceptions.DuplicateEmailException;
@@ -12,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserService {
@@ -22,6 +27,12 @@ public class UserService {
     @Autowired
     private ProfileRepository profileRepository;
 
+    @Autowired
+    private AppointmentRepository appointmentRepository;
+
+    @Autowired
+    private DoctorRepository doctorRepository;
+
 
     public void deleteAll() {
         userRepository.deleteAll();
@@ -30,8 +41,20 @@ public class UserService {
     public User registerUser(User user, UserProfile profile) {
         throwsDuplicateEmailException(user);
         UserProfile savedProfile = profileRepository.save(profile);
-        user.setProfileId(savedProfile.getId());
+        user.setProfile(savedProfile);
         return userRepository.save(user);
+    }
+
+    public List<Appointment> findAllAppointments() {
+        return appointmentRepository.findAll();
+    }
+
+    public Appointment createAnAppointment(Appointment appointment, String patientId, String doctorId) {
+        Optional<User> patient = userRepository.findById(patientId);
+        Optional<Doctor> doctor = doctorRepository.findById(doctorId);
+        patient.ifPresent(appointment::setPatient);
+        doctor.ifPresent(appointment::setDoctor);
+        return appointmentRepository.save(appointment);
     }
 
     public User findById(String id) {
@@ -47,7 +70,7 @@ public class UserService {
     }
 
     public void deleteAccountById(String id) {
-        userRepository.deleteAllById(Collections.singleton(id));
+        userRepository.deleteById(id);
     }
 
     public User login(String email, String password) {

@@ -1,6 +1,6 @@
 package org.healthShelfs.data.repositories;
 
-import org.healthShelfs.data.models.User;
+import org.healthShelfs.data.models.users.User;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

@@ -1,7 +1,7 @@
 package org.healthShelfs.services;
 
-import org.healthShelfs.data.models.User;
-import org.healthShelfs.data.models.UserProfile;
+import org.healthShelfs.data.models.users.User;
+import org.healthShelfs.data.models.users.UserProfile;
 import org.healthShelfs.definedExceptions.DuplicateEmailException;
 import org.healthShelfs.definedExceptions.InvalidPasswordException;
 import org.healthShelfs.definedExceptions.UserNotFoundException;

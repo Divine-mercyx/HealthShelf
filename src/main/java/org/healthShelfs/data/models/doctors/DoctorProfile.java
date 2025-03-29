@@ -1,8 +1,10 @@
-package org.healthShelfs.data.models;
+package org.healthShelfs.data.models.doctors;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.healthShelfs.data.models.Gender;
+import org.healthShelfs.data.models.JobField;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -10,8 +12,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserProfile {
-
+public class DoctorProfile {
     @Id
     private String id;
     private String firstName;
