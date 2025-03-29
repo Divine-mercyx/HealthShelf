@@ -1,6 +1,7 @@
 package org.healthShelfs.controllers;
 
 import org.healthShelfs.data.models.appointment.Appointment;
+import org.healthShelfs.data.models.doctors.Doctor;
 import org.healthShelfs.data.models.users.User;
 import org.healthShelfs.services.Dto.UserAppointmentRequest;
 import org.healthShelfs.services.Dto.UserRegistrationRequest;
@@ -37,11 +38,7 @@ public class UserController {
 
     @GetMapping("/get/appointments/record/{userId}")
     public List<Appointment> getAppointments(@PathVariable String userId) {
-        List<Appointment> appointments = userService.findAllAppointments();
-        User patient = userService.findById(userId);
-        return appointments.stream()
-                .filter(appointment -> appointment.getPatient().equals(patient))
-                .toList();
+        return userService.getAppointments(userId);
     }
 
     @GetMapping("/get/{id}")
@@ -52,5 +49,10 @@ public class UserController {
     @GetMapping("/get/users")
     public List<User> findAllUsers() {
         return userService.findAll();
+    }
+
+    @GetMapping("/find/doctors")
+    public List<Doctor> findDoctorsByUsername(@RequestParam String username) {
+        return userService.findDoctorsByUser(username.trim());
     }
 }

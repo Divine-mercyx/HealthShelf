@@ -21,6 +21,7 @@ import java.util.Optional;
 @Service
 public class UserService {
 
+
     @Autowired
     private UserRepository userRepository;
 
@@ -34,6 +35,7 @@ public class UserService {
     private DoctorRepository doctorRepository;
 
 
+
     public void deleteAll() {
         userRepository.deleteAll();
     }
@@ -43,6 +45,17 @@ public class UserService {
         UserProfile savedProfile = profileRepository.save(profile);
         user.setProfile(savedProfile);
         return userRepository.save(user);
+    }
+
+    public void deleteAccountById(String id) {
+        userRepository.deleteById(id);
+    }
+
+    public User login(String email, String password) {
+        User user = userRepository.findByEmail(email);
+        throwsUserNotFoundException(user);
+        throwsInvalidPasswordException(user, password);
+        return user;
     }
 
     public List<Appointment> findAllAppointments() {
@@ -69,15 +82,16 @@ public class UserService {
         return userRepository.count();
     }
 
-    public void deleteAccountById(String id) {
-        userRepository.deleteById(id);
+    public List<Doctor> findDoctorsByUser(String username) {
+        return doctorRepository.findByUsername(username);
     }
 
-    public User login(String email, String password) {
-        User user = userRepository.findByEmail(email);
-        throwsUserNotFoundException(user);
-        throwsInvalidPasswordException(user, password);
-        return user;
+    public List<Appointment> getAppointments(String userId) {
+        List<Appointment> appointments = appointmentRepository.findAll();
+        User patient = userRepository.findById(userId).orElse(null);
+        return appointments.stream()
+                .filter(appointment -> appointment.getPatient().equals(patient))
+                .toList();
     }
 
     private void throwsUserNotFoundException(User user) {
