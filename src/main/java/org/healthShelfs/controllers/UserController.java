@@ -2,8 +2,10 @@ package org.healthShelfs.controllers;
 
 import org.healthShelfs.data.models.appointment.Appointment;
 import org.healthShelfs.data.models.doctors.Doctor;
+import org.healthShelfs.data.models.users.MedicalHistory;
 import org.healthShelfs.data.models.users.User;
 import org.healthShelfs.services.Dto.UserAppointmentRequest;
+import org.healthShelfs.services.Dto.UserLoginRequest;
 import org.healthShelfs.services.Dto.UserRegistrationRequest;
 import org.healthShelfs.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,31 +30,47 @@ public class UserController {
 
     @PostMapping("/register")
     public User registerUser(@RequestBody UserRegistrationRequest request) {
-        return userService.registerUser(request.getUser(), request.getProfile());
+        return userService.registerUser(request);
     }
 
-    @PostMapping("/create/appointment")
+    @GetMapping("/medical/history/{id}")
+    public List<MedicalHistory> getMedicalHistory(@PathVariable String id) {
+        return userService.getMedicalHistoriesById(id);
+    }
+
+    @PostMapping("/login")
+    public User loginUser(@RequestBody UserLoginRequest request) {
+        return userService.login(request);
+    }
+
+    @PostMapping("/appointment")
     public Appointment createAppointment(@RequestBody UserAppointmentRequest request) {
-        return userService.createAnAppointment(request.getAppointment(), request.getUser().getId(), request.getDoctor().getId());
+        return userService.createAnAppointment(request);
     }
 
-    @GetMapping("/get/appointments/record/{userId}")
+    @GetMapping("/appointments/record/{userId}")
     public List<Appointment> getAppointments(@PathVariable String userId) {
         return userService.getAppointments(userId);
     }
 
-    @GetMapping("/get/{id}")
+    @GetMapping("/{id}")
     public User findUserById(@PathVariable String id) {
         return userService.findById(id);
     }
 
-    @GetMapping("/get/users")
+    @GetMapping("/patients")
     public List<User> findAllUsers() {
         return userService.findAll();
     }
 
-    @GetMapping("/find/doctors")
-    public List<Doctor> findDoctorsByUsername(@RequestParam String username) {
+    @GetMapping("/doctors")
+    public Doctor findDoctorsByUsername(@RequestParam String username) {
         return userService.findDoctorsByUser(username.trim());
+    }
+
+    @PostMapping("/delete/{id}")
+    public String deleteAccount(@PathVariable String id) {
+        userService.deleteAccountById(id);
+        return "account deleted";
     }
 }

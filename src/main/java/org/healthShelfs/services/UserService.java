@@ -2,15 +2,16 @@ package org.healthShelfs.services;
 
 import org.healthShelfs.data.models.appointment.Appointment;
 import org.healthShelfs.data.models.doctors.Doctor;
+import org.healthShelfs.data.models.users.MedicalHistory;
 import org.healthShelfs.data.models.users.User;
 import org.healthShelfs.data.models.users.UserProfile;
-import org.healthShelfs.data.repositories.AppointmentRepository;
-import org.healthShelfs.data.repositories.DoctorRepository;
-import org.healthShelfs.data.repositories.ProfileRepository;
-import org.healthShelfs.data.repositories.UserRepository;
+import org.healthShelfs.data.repositories.*;
 import org.healthShelfs.definedExceptions.DuplicateEmailException;
 import org.healthShelfs.definedExceptions.InvalidPasswordException;
 import org.healthShelfs.definedExceptions.UserNotFoundException;
+import org.healthShelfs.services.Dto.UserAppointmentRequest;
+import org.healthShelfs.services.Dto.UserLoginRequest;
+import org.healthShelfs.services.Dto.UserRegistrationRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -34,27 +35,37 @@ public class UserService {
     @Autowired
     private DoctorRepository doctorRepository;
 
+    @Autowired
+    private MedicalHistoryRepository medicalHistoryRepository;
+
 
 
     public void deleteAll() {
         userRepository.deleteAll();
     }
 
-    public User registerUser(User user, UserProfile profile) {
-        throwsDuplicateEmailException(user);
-        UserProfile savedProfile = profileRepository.save(profile);
-        user.setProfile(savedProfile);
-        return userRepository.save(user);
+    public User registerUser(UserRegistrationRequest request) {
+        throwsDuplicateEmailException(request.getUser());
+        UserProfile savedProfile = profileRepository.save(request.getProfile());
+        request.getUser().setProfile(savedProfile);
+        return userRepository.save(request.getUser());
     }
 
     public void deleteAccountById(String id) {
         userRepository.deleteById(id);
     }
 
-    public User login(String email, String password) {
-        User user = userRepository.findByEmail(email);
+    public List<MedicalHistory> getMedicalHistoriesById(String id) {
+        User user = userRepository.findById(id).orElse(null);
+        return medicalHistoryRepository.findAll().stream()
+                .filter(medicalHistory -> medicalHistory.getPatient().getId().equals(id))
+                .toList();
+    }
+
+    public User login(UserLoginRequest request) {
+        User user = userRepository.findByEmail(request.getEmail());
         throwsUserNotFoundException(user);
-        throwsInvalidPasswordException(user, password);
+        throwsInvalidPasswordException(user, request.getPassword());
         return user;
     }
 
@@ -62,12 +73,12 @@ public class UserService {
         return appointmentRepository.findAll();
     }
 
-    public Appointment createAnAppointment(Appointment appointment, String patientId, String doctorId) {
-        Optional<User> patient = userRepository.findById(patientId);
-        Optional<Doctor> doctor = doctorRepository.findById(doctorId);
-        patient.ifPresent(appointment::setPatient);
-        doctor.ifPresent(appointment::setDoctor);
-        return appointmentRepository.save(appointment);
+    public Appointment createAnAppointment(UserAppointmentRequest request) {
+        Optional<User> patient = userRepository.findById(request.getUser().getId());
+        Optional<Doctor> doctor = doctorRepository.findById(request.getDoctor().getId());
+        patient.ifPresent(request.getAppointment()::setPatient);
+        doctor.ifPresent(request.getAppointment()::setDoctor);
+        return appointmentRepository.save(request.getAppointment());
     }
 
     public User findById(String id) {
@@ -82,7 +93,7 @@ public class UserService {
         return userRepository.count();
     }
 
-    public List<Doctor> findDoctorsByUser(String username) {
+    public Doctor findDoctorsByUser(String username) {
         return doctorRepository.findByUsername(username);
     }
 

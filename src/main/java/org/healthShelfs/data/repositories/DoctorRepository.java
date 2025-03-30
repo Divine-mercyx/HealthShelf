@@ -9,6 +9,6 @@ import java.util.List;
 public interface DoctorRepository extends MongoRepository<Doctor, String> {
 
     boolean existsByEmail(String email);
-    List<Doctor> findByUsername(String username);
+    Doctor findByUsername(String username);
     Doctor findByEmail(String email);
 }

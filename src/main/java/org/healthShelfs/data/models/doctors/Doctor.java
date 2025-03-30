@@ -19,6 +19,7 @@ public class Doctor {
     @Indexed(unique = true)
     private String email;
 
+    @Indexed(unique = true)
     private String username;
 
     private String password;
