@@ -174,8 +174,8 @@ class UserRepositoryTest {
         user1.setEmail("email@gmail.com");
         user1.setPassword("password");
         User savedUser = userRepository.save(user1);
-        List<User> foundUser = userRepository.findByUsername(user1.getUsername());
-        assertEquals(foundUser.get(0), savedUser);
-        assertEquals(foundUser.get(0).getId(), savedUser.getId());
+        User foundUser = userRepository.findByUsername(user1.getUsername());
+        assertEquals(foundUser, savedUser);
+        assertEquals(foundUser.getId(), savedUser.getId());
     }
 }

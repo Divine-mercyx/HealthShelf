@@ -18,12 +18,6 @@ import java.util.List;
 @RequestMapping("/api/users")
 public class UserController {
 
-    //67e6dca3d4a2dd6ffd218d27
-
-    //67e791fecde6504376b9e2a3
-
-    //67e79347cde6504376b9e2a4
-
     @Autowired
     private UserService userService;
 

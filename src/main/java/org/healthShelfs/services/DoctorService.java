@@ -1,13 +1,11 @@
 package org.healthShelfs.services;
 
+import org.healthShelfs.data.models.appointment.Appointment;
 import org.healthShelfs.data.models.doctors.Doctor;
 import org.healthShelfs.data.models.doctors.DoctorProfile;
 import org.healthShelfs.data.models.users.MedicalHistory;
 import org.healthShelfs.data.models.users.User;
-import org.healthShelfs.data.repositories.DoctorProfileRepository;
-import org.healthShelfs.data.repositories.DoctorRepository;
-import org.healthShelfs.data.repositories.MedicalHistoryRepository;
-import org.healthShelfs.data.repositories.UserRepository;
+import org.healthShelfs.data.repositories.*;
 import org.healthShelfs.definedExceptions.DuplicateEmailException;
 import org.healthShelfs.definedExceptions.DuplicateUsernameException;
 import org.healthShelfs.definedExceptions.InvalidPasswordException;
@@ -21,6 +19,11 @@ import java.util.List;
 
 @Service
 public class DoctorService {
+
+    //67ea6e9b2db9130e88ceb407 doctor
+    //67ea704c54dbad49345d5b1f user
+
+
     @Autowired
     private DoctorRepository doctorRepository;
 
@@ -33,6 +36,9 @@ public class DoctorService {
     @Autowired
     private MedicalHistoryRepository medicalHistoryRepository;
 
+    @Autowired
+    private AppointmentRepository appointmentRepository;
+
     public void deleteAllDoctors() {
         doctorRepository.deleteAll();
     }
@@ -43,6 +49,14 @@ public class DoctorService {
         DoctorProfile profile = doctorProfileRepository.save(doctorProfile);
         doctor.setDoctorProfile(profile);
         return doctorRepository.save(doctor);
+    }
+
+    public List<Appointment> getAppointments(String doctorId) {
+        List<Appointment> appointments = appointmentRepository.findAll();
+        Doctor doctor = doctorRepository.findById(doctorId).orElse(null);
+        return appointments.stream()
+                .filter(appointment -> appointment.getDoctor().equals(doctor))
+                .toList();
     }
 
     public Doctor findById(String id) {
@@ -69,7 +83,7 @@ public class DoctorService {
     }
 
     private void throwsDuplicateUsernameException(Doctor doctor) {
-        if (doctorRepository.findByUsername(doctor.getUsername()).getUsername().equals(doctor.getUsername())) throw new DuplicateUsernameException("username already in use");
+        if (doctorRepository.existsByUsername(doctor.getUsername())) throw new DuplicateUsernameException("username already in use");
     }
 
     private void throwsDuplicateEmailException(Doctor doctor) {
@@ -91,5 +105,13 @@ public class DoctorService {
         medicalHistory.setPatient(patient);
         medicalHistory.setDoctor(doctor);
         return medicalHistoryRepository.save(medicalHistory);
+    }
+
+    public Doctor findBy(String username) {
+        return doctorRepository.findByUsername(username);
+    }
+
+    public User findPatientBy(String username) {
+        return userRepository.findByUsername(username);
     }
 }

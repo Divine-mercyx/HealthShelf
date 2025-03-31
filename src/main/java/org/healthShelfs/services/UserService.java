@@ -7,6 +7,7 @@ import org.healthShelfs.data.models.users.User;
 import org.healthShelfs.data.models.users.UserProfile;
 import org.healthShelfs.data.repositories.*;
 import org.healthShelfs.definedExceptions.DuplicateEmailException;
+import org.healthShelfs.definedExceptions.DuplicateUsernameException;
 import org.healthShelfs.definedExceptions.InvalidPasswordException;
 import org.healthShelfs.definedExceptions.UserNotFoundException;
 import org.healthShelfs.services.Dto.UserAppointmentRequest;
@@ -46,6 +47,7 @@ public class UserService {
 
     public User registerUser(UserRegistrationRequest request) {
         throwsDuplicateEmailException(request.getUser());
+        throwsDuplicateUsernameException(request.getUser());
         UserProfile savedProfile = profileRepository.save(request.getProfile());
         request.getUser().setProfile(savedProfile);
         return userRepository.save(request.getUser());
@@ -104,6 +106,11 @@ public class UserService {
                 .filter(appointment -> appointment.getPatient().equals(patient))
                 .toList();
     }
+
+    private void throwsDuplicateUsernameException(User user) {
+        if (userRepository.existsByUsername(user.getUsername())) throw new DuplicateUsernameException("username already in use");
+    }
+
 
     private void throwsUserNotFoundException(User user) {
         if (user == null) throw new UserNotFoundException("invalid email or password");
