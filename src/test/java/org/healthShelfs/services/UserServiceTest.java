@@ -1,10 +1,12 @@
 package org.healthShelfs.services;
 
-import org.healthShelfs.data.models.User;
-import org.healthShelfs.data.models.UserProfile;
+import org.healthShelfs.data.models.users.User;
+import org.healthShelfs.data.models.users.UserProfile;
 import org.healthShelfs.definedExceptions.DuplicateEmailException;
 import org.healthShelfs.definedExceptions.InvalidPasswordException;
 import org.healthShelfs.definedExceptions.UserNotFoundException;
+import org.healthShelfs.services.Dto.UserLoginRequest;
+import org.healthShelfs.services.Dto.UserRegistrationRequest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,11 +21,15 @@ class UserServiceTest {
     @Autowired
     private UserService userService;
     private UserProfile profile;
+    private UserRegistrationRequest request;
+    private UserLoginRequest loginRequest;
 
     @BeforeEach
     void setUp() {
         profile = new UserProfile();
         userService.deleteAll();
+        request = new UserRegistrationRequest();
+        loginRequest = new UserLoginRequest();
     }
 
     @AfterEach
@@ -37,7 +43,9 @@ class UserServiceTest {
         user.setUsername("john");
         user.setPassword("password");
         user.setEmail("john@gmail.com");
-        User savedUser = userService.registerUser(user, profile);
+        request.setUser(user);
+        request.setProfile(profile);
+        User savedUser = userService.registerUser(request);
         assertNotNull(savedUser);
         assertEquals(savedUser.getUsername(), user.getUsername());
     }
@@ -48,12 +56,16 @@ class UserServiceTest {
         user1.setUsername("john");
         user1.setPassword("password");
         user1.setEmail("john@gmail.com");
-        userService.registerUser(user1, profile);
+        request.setUser(user1);
+        request.setProfile(profile);
+        userService.registerUser(request);
         User user2 = new User();
         user2.setUsername("john");
         user2.setPassword("password");
         user2.setEmail("john@gmail.com");
-        assertThrows(DuplicateEmailException.class, () -> userService.registerUser(user2, profile));
+        request.setUser(user2);
+        request.setProfile(profile);
+        assertThrows(DuplicateEmailException.class, () -> userService.registerUser(request));
         assertEquals(1, userService.count());
     }
 
@@ -63,8 +75,12 @@ class UserServiceTest {
         user1.setUsername("john");
         user1.setPassword("password");
         user1.setEmail("john@gmail.com");
-        userService.registerUser(user1, profile);
-        User loginUser = userService.login("john@gmail.com", "password");
+        request.setUser(user1);
+        request.setProfile(profile);
+        userService.registerUser(request);
+        loginRequest.setEmail("john@gmail.com");
+        loginRequest.setPassword("password");
+        User loginUser = userService.login(loginRequest);
         assertEquals(user1, loginUser);
     }
 
@@ -74,8 +90,12 @@ class UserServiceTest {
         user1.setUsername("john");
         user1.setPassword("password");
         user1.setEmail("john@gmail.com");
-        userService.registerUser(user1, profile);
-        assertThrows(InvalidPasswordException.class, () -> userService.login("john@gmail.com", "wrongPassword"));
+        request.setUser(user1);
+        request.setProfile(profile);
+        userService.registerUser(request);
+        loginRequest.setEmail("john@gmail.com");
+        loginRequest.setPassword("wrongPassword");
+        assertThrows(InvalidPasswordException.class, () -> userService.login(loginRequest));
     }
 
     @Test
@@ -84,8 +104,12 @@ class UserServiceTest {
         user1.setUsername("john");
         user1.setPassword("password");
         user1.setEmail("john@gmail.com");
-        userService.registerUser(user1, profile);
-        assertThrows(UserNotFoundException.class, () -> userService.login("wrong@gmail.com", "password"));
+        request.setUser(user1);
+        request.setProfile(profile);
+        userService.registerUser(request);
+        loginRequest.setEmail("wrongJohn@gmail.com");
+        loginRequest.setPassword("password");
+        assertThrows(UserNotFoundException.class, () -> userService.login(loginRequest));
     }
 
     @Test
@@ -94,7 +118,9 @@ class UserServiceTest {
         user1.setUsername("john");
         user1.setPassword("password");
         user1.setEmail("john@gmail.com");
-        userService.registerUser(user1, profile);
+        request.setUser(user1);
+        request.setProfile(profile);
+        userService.registerUser(request);
         userService.deleteAccountById(user1.getId());
         assertEquals(0, userService.count());
     }
