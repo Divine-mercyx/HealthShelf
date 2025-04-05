@@ -42,7 +42,7 @@ public class UserController {
         return userService.createAnAppointment(request);
     }
 
-    @GetMapping("/appointments/record/{userId}")
+    @GetMapping("/appointments/{userId}")
     public List<Appointment> getAppointments(@PathVariable String userId) {
         return userService.getAppointments(userId);
     }
